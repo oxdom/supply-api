@@ -5,6 +5,7 @@ const { Connection, PublicKey } = require('@solana/web3.js');
 const { createPublicClient, http, formatEther } = require('viem');
 const { base, mainnet, arbitrum  } = require('viem/chains');
 const { isAddress, getAddress } = require('@ethersproject/address');
+const axios = require('axios');
 
 const app = express();
 const port = 3000;
@@ -15,6 +16,7 @@ const SOLANA_CLUSTER = process.env.SOLANA_CLUSTER;
 const ARBITRUM_PROVIDER_URL = process.env.ARBITRUM_PROVIDER_URL;
 const baseTransportRPC = http(process.env.BASE_TRANSPORT_RPC);
 const ethTransportRPC = http(process.env.ETH_TRANSPORT_RPC);
+const SUI_PROVIDER_URL = process.env.SUI_PROVIDER_URL;
 // Create a connection to the Solana cluster
 const solanaConnection = new Connection(SOLANA_CLUSTER, 'confirmed');
 
@@ -177,6 +179,40 @@ app.get('/supply/arb/:tokenAddress', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Failed to fetch Ethereum token supply' });
+    }
+});
+
+
+// Function to get the total supply of a coin on Sui
+async function getSuiTotalSupply(tokenAddress) {
+    try {
+        const response = await axios.post(SUI_PROVIDER_URL, {
+            jsonrpc: "2.0",
+            id: 1,
+            method: "suix_getTotalSupply",
+            params: [tokenAddress]
+        });
+
+        const totalSupply = response.data.result.value;
+        if(typeof totalSupply === "bigint"){
+            return totalSupply.toString()
+        }else{
+            return totalSupply
+        }
+    } catch (error) {
+        console.error('Error fetching Sui total supply:', error);
+        throw error;
+    }
+}
+
+// Route for Sui supply
+app.get('/supply/sui/:tokenAddress', async (req, res) => {
+    const { tokenAddress } = req.params;
+    try {
+        const supply = await getSuiTotalSupply(tokenAddress);
+        res.json({ tokenAddress, supply });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch Sui total supply' });
     }
 });
 
