@@ -10,6 +10,7 @@ const axios = require('axios');
 const app = express();
 const port = 3000;
 const ERC20_ABI = require('./abi/ERC20.json');
+const TRON_ERC20_ABI = require('./abi/TRON_ERC20.json');
 
 // Solana cluster endpoint
 const SOLANA_CLUSTER = process.env.SOLANA_CLUSTER;
@@ -213,6 +214,29 @@ app.get('/supply/sui/:tokenAddress', async (req, res) => {
         res.json({ tokenAddress, supply });
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch Sui total supply' });
+    }
+});
+
+// Function to get the total supply of a token on Tron
+async function getTronTokenSupply(tokenAddress) {
+    try {
+        const contract = await tronWeb.contract(TRON_ERC20_ABI, tokenAddress);
+        const totalSupply = await contract.methods.totalSupply().call();
+        return totalSupply.toString(); // Convert to string for consistency
+    } catch (error) {
+        console.error('Error fetching Tron token supply:', error);
+        throw error;
+    }
+}
+
+// Route for Tron supply
+app.get('/supply/tron/:tokenAddress', async (req, res) => {
+    const { tokenAddress } = req.params;
+    try {
+        const supply = await getTronTokenSupply(tokenAddress);
+        res.json({ tokenAddress, supply });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch Tron token supply' });
     }
 });
 
