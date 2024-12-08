@@ -12,6 +12,7 @@
   "dependencies": {
     "@ethersproject/address": "^5.7.0",
     "@solana/web3.js": "^1.95.8",
+    "dotenv": "^16.4.7",
     "ethers": "^6.13.4",
     "express": "^4.21.2",
     "viem": "^2.21.54"

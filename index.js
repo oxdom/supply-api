@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const { Connection, PublicKey } = require('@solana/web3.js');
 const { createPublicClient, http, formatEther } = require('viem');
@@ -9,10 +11,10 @@ const port = 3000;
 const ERC20_ABI = require('./abi/ERC20.json');
 
 // Solana cluster endpoint
-const SOLANA_CLUSTER = 'https://api.mainnet-beta.solana.com';
-const ARBITRUM_PROVIDER_URL = 'https://arb1.arbitrum.io/rpc'; // Replace with your RPC provider if needed
-const baseTransportRPC = http('https://base.llamarpc.com');
-const ethTransportRPC = http('https://winter-sparkling-gadget.quiknode.pro/78b00fcaed6bedd88a4e33f3688781281a172dd2');
+const SOLANA_CLUSTER = process.env.SOLANA_CLUSTER;
+const ARBITRUM_PROVIDER_URL = process.env.ARBITRUM_PROVIDER_URL;
+const baseTransportRPC = http(process.env.BASE_TRANSPORT_RPC);
+const ethTransportRPC = http(process.env.ETH_TRANSPORT_RPC);
 // Create a connection to the Solana cluster
 const solanaConnection = new Connection(SOLANA_CLUSTER, 'confirmed');
 
